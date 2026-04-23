@@ -1,13 +1,13 @@
-package com.guohao.configenc.tool;
+package com.guohao.configcipher.tool;
 
 import com.guohao.EncryptionFactory;
-import com.guohao.configenc.EncryptedConfigIO;
-import com.guohao.configenc.KeyRing;
+import com.guohao.configcipher.EncryptedConfigIO;
+import com.guohao.configcipher.KeyRing;
 
 import java.nio.file.Path;
 import java.util.Locale;
 
-public final class ConfigEncryptorCli {
+public final class ConfigCipherCli {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             printUsage();
@@ -58,9 +58,14 @@ public final class ConfigEncryptorCli {
         System.out.println("Algorithms:");
         System.out.println("  AES | SM4 | RSA | SM2 | ECIES");
         System.out.println();
-        System.out.println("Environment:");
-        System.out.println("  CONFIG_ENC_KEYRING=key1:BASE64,key2:BASE64");
-        System.out.println("  CONFIG_ENC_ACTIVE_KEY_ID=key1");
+        System.out.println("Environment (any one of):");
+        System.out.println("  CONFIG_CIPHER_KEYRING=key1:BASE64,key2:BASE64");
+        System.out.println("  CONFIG_CIPHER_KEY=BASE64 (+ optional CONFIG_CIPHER_KEY_ID=default)");
+        System.out.println("  CONFIG_CIPHER_KEY_FILE=/path/to/keyfile");
+        System.out.println("  CONFIG_CIPHER_KEYRING_FILE=/path/to/keyring");
+        System.out.println("  -Dconfig.cipher.keyring=... or -Dconfig.cipher.key=...");
+        System.out.println("  -Dconfig.cipher.keyring.file=... or -Dconfig.cipher.key.file=...");
+        System.out.println("  CONFIG_CIPHER_ACTIVE_KEY_ID selects the active encryption key.");
     }
 
     private static EncryptionFactory.AlgorithmType parseAlgorithm(String value) {

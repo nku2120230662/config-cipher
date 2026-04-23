@@ -1,4 +1,4 @@
-package com.guohao.configenc;
+package com.guohao.configcipher;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,19 +9,19 @@ import java.util.Map;
 import java.util.Set;
 
 public final class KeyRing {
-    public static final String ENV_KEYRING = "CONFIG_ENC_KEYRING";
-    public static final String ENV_ACTIVE_KEY_ID = "CONFIG_ENC_ACTIVE_KEY_ID";
-    public static final String ENV_SINGLE_KEY = "CONFIG_ENC_KEY";
-    public static final String ENV_SINGLE_KEY_ID = "CONFIG_ENC_KEY_ID";
-    public static final String ENV_KEY_FILE = "CONFIG_ENC_KEY_FILE";
-    public static final String ENV_KEYRING_FILE = "CONFIG_ENC_KEYRING_FILE";
+    public static final String ENV_KEYRING = "CONFIG_CIPHER_KEYRING";
+    public static final String ENV_ACTIVE_KEY_ID = "CONFIG_CIPHER_ACTIVE_KEY_ID";
+    public static final String ENV_SINGLE_KEY = "CONFIG_CIPHER_KEY";
+    public static final String ENV_SINGLE_KEY_ID = "CONFIG_CIPHER_KEY_ID";
+    public static final String ENV_KEY_FILE = "CONFIG_CIPHER_KEY_FILE";
+    public static final String ENV_KEYRING_FILE = "CONFIG_CIPHER_KEYRING_FILE";
 
-    public static final String SYS_KEYRING = "config.enc.keyring";
-    public static final String SYS_ACTIVE_KEY_ID = "config.enc.active.key.id";
-    public static final String SYS_SINGLE_KEY = "config.enc.key";
-    public static final String SYS_SINGLE_KEY_ID = "config.enc.key.id";
-    public static final String SYS_KEY_FILE = "config.enc.key.file";
-    public static final String SYS_KEYRING_FILE = "config.enc.keyring.file";
+    public static final String SYS_KEYRING = "config.cipher.keyring";
+    public static final String SYS_ACTIVE_KEY_ID = "config.cipher.active.key.id";
+    public static final String SYS_SINGLE_KEY = "config.cipher.key";
+    public static final String SYS_SINGLE_KEY_ID = "config.cipher.key.id";
+    public static final String SYS_KEY_FILE = "config.cipher.key.file";
+    public static final String SYS_KEYRING_FILE = "config.cipher.keyring.file";
 
     private final Map<String, String> keys;
     private final String activeKeyId;

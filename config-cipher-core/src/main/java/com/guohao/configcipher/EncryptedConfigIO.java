@@ -1,4 +1,4 @@
-package com.guohao.configenc;
+package com.guohao.configcipher;
 
 import com.guohao.EncryptionAlgorithm;
 import com.guohao.EncryptionFactory;

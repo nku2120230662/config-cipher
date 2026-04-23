@@ -5,12 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.guohao</groupId>
-    <artifactId>FileEncryption</artifactId>
+    <artifactId>config-cipher</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <name>config-cipher</name>
 
     <modules>
-        <module>configenc-core</module>
+        <module>config-cipher-core</module>
         <module>demo</module>
     </modules>
 

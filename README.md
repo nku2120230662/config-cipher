@@ -1,4 +1,4 @@
-# FileEncryption — Spring Boot 配置文件加密组件
+# config-cipher — Spring Boot 配置文件加密组件
 
 把敏感配置（数据库口令、第三方 API key 等）以**密文**形式提交进仓库，在 Spring Boot 启动时由组件**透明解密**。应用代码无需任何修改，`@Value` 注入的就是解密后的值。
 
@@ -38,10 +38,10 @@
 ## 工程结构
 
 ```
-FileEncryption/
-├── configenc-core/     # 加密库（算法、文件格式、Spring SPI、CLI）
-├── demo/               # 示例 Spring Boot 应用
-└── pom.xml             # 聚合 POM
+config-cipher/
+├── config-cipher-core/     # 加密库（算法、文件格式、Spring SPI、CLI）
+├── demo/                   # 示例 Spring Boot 应用
+└── pom.xml                 # 聚合 POM
 ```
 
 ---
@@ -54,9 +54,9 @@ FileEncryption/
 
 ```bash
 # AES-256 密钥（44 字符 Base64）
-java -cp configenc-core/target/classes -e 'System.out.println(com.guohao.tools.sys.AESEncryption.generateKeyBase64())'
+java -cp config-cipher-core/target/classes -e 'System.out.println(com.guohao.tools.sys.AESEncryption.generateKeyBase64())'
 # 或交互式
-java -cp configenc-core/target/classes com.guohao.Main   # 选 "演示/生成"
+java -cp config-cipher-core/target/classes com.guohao.Main   # 选 "演示/生成"
 ```
 
 PowerShell 直出：
@@ -81,8 +81,8 @@ app:
 加密：
 
 ```bash
-java -cp configenc-core/target/classes \
-  com.guohao.configenc.tool.ConfigEncryptorCli encrypt \
+java -cp config-cipher-core/target/classes \
+  com.guohao.configcipher.tool.ConfigCipherCli encrypt \
   AES app.yml demo/src/main/resources/application.yml.enc default "$AES_KEY"
 
 rm app.yml
@@ -104,7 +104,7 @@ spring.config.import=classpath:application.yml.enc
 mvn -q -DskipTests clean package
 ```
 
-产物 `demo/target/configenc-demo-1.0-SNAPSHOT.jar` 里有**密文**、有**解密组件**、**没有密钥**。
+产物 `demo/target/config-cipher-demo-1.0-SNAPSHOT.jar` 里有**密文**、有**解密组件**、**没有密钥**。
 
 ### 第 5 步：接收方启动
 
@@ -112,17 +112,17 @@ mvn -q -DskipTests clean package
 
 ```bash
 # 方式 A — 环境变量（Linux/macOS）
-export CONFIG_ENC_KEY="aBc...XyZ="
-java -jar configenc-demo-1.0-SNAPSHOT.jar
+export CONFIG_CIPHER_KEY="aBc...XyZ="
+java -jar config-cipher-demo-1.0-SNAPSHOT.jar
 
 # 方式 B — JVM 系统属性（跨平台最简单）
-java -Dconfig.enc.key=aBc...XyZ= -jar configenc-demo-1.0-SNAPSHOT.jar
+java -Dconfig.cipher.key=aBc...XyZ= -jar config-cipher-demo-1.0-SNAPSHOT.jar
 
 # 方式 C — 密钥文件（推荐生产 / K8s / Vault 场景）
 echo -n "aBc...XyZ=" > /run/secrets/app.key
 chmod 400 /run/secrets/app.key
-export CONFIG_ENC_KEY_FILE=/run/secrets/app.key
-java -jar configenc-demo-1.0-SNAPSHOT.jar
+export CONFIG_CIPHER_KEY_FILE=/run/secrets/app.key
+java -jar config-cipher-demo-1.0-SNAPSHOT.jar
 ```
 
 成功输出：
@@ -143,24 +143,24 @@ app.port=9090
 
 | # | 来源 | 单 key / Keyring | 说明 |
 |---|---|---|---|
-| 1 | `-Dconfig.enc.keyring` | Keyring | JVM 系统属性，`keyId:BASE64,...` |
-| 2 | `CONFIG_ENC_KEYRING` | Keyring | 环境变量 |
-| 3 | `-Dconfig.enc.keyring.file` | Keyring | 文件路径；内容同 keyring 字符串，也支持每行一条 |
-| 4 | `CONFIG_ENC_KEYRING_FILE` | Keyring | 环境变量指向文件 |
-| 5 | `-Dconfig.enc.key` | 单 key | JVM 系统属性 |
-| 6 | `CONFIG_ENC_KEY` | 单 key | 环境变量 |
-| 7 | `-Dconfig.enc.key.file` | 单 key | 文件路径，内容就是 Base64 key |
-| 8 | `CONFIG_ENC_KEY_FILE` | 单 key | 环境变量指向文件 |
+| 1 | `-Dconfig.cipher.keyring` | Keyring | JVM 系统属性，`keyId:BASE64,...` |
+| 2 | `CONFIG_CIPHER_KEYRING` | Keyring | 环境变量 |
+| 3 | `-Dconfig.cipher.keyring.file` | Keyring | 文件路径；内容同 keyring 字符串，也支持每行一条 |
+| 4 | `CONFIG_CIPHER_KEYRING_FILE` | Keyring | 环境变量指向文件 |
+| 5 | `-Dconfig.cipher.key` | 单 key | JVM 系统属性 |
+| 6 | `CONFIG_CIPHER_KEY` | 单 key | 环境变量 |
+| 7 | `-Dconfig.cipher.key.file` | 单 key | 文件路径，内容就是 Base64 key |
+| 8 | `CONFIG_CIPHER_KEY_FILE` | 单 key | 环境变量指向文件 |
 
 辅助变量：
-- `-Dconfig.enc.active.key.id` / `CONFIG_ENC_ACTIVE_KEY_ID`：Keyring 多 key 下指定当前加密用哪个 keyId
-- `-Dconfig.enc.key.id` / `CONFIG_ENC_KEY_ID`：单 key 模式下设置 keyId（默认 `default`）
+- `-Dconfig.cipher.active.key.id` / `CONFIG_CIPHER_ACTIVE_KEY_ID`：Keyring 多 key 下指定当前加密用哪个 keyId
+- `-Dconfig.cipher.key.id` / `CONFIG_CIPHER_KEY_ID`：单 key 模式下设置 keyId（默认 `default`）
 
 ---
 
 ## 密钥文件的写法
 
-**单 key 文件**（`CONFIG_ENC_KEY_FILE` 指向）：
+**单 key 文件**（`CONFIG_CIPHER_KEY_FILE` 指向）：
 
 ```
 aBc...XyZ=
@@ -168,7 +168,7 @@ aBc...XyZ=
 
 内容就是一串 Base64，允许末尾换行。文件建议 `chmod 400`。
 
-**Keyring 文件**（`CONFIG_ENC_KEYRING_FILE` 指向）：
+**Keyring 文件**（`CONFIG_CIPHER_KEYRING_FILE` 指向）：
 
 ```
 key-2025:NEW_BASE64_KEY
@@ -184,8 +184,8 @@ key-2024:OLD_BASE64_KEY
 多 key 并存 → 新文件用新 keyId 加密 → 老文件靠老 keyId 还能解 → 老文件全部刷完后再下线老 key：
 
 ```
-CONFIG_ENC_KEYRING_FILE=/etc/app/keys
-CONFIG_ENC_ACTIVE_KEY_ID=key-2025   # 新加密用这个
+CONFIG_CIPHER_KEYRING_FILE=/etc/app/keys
+CONFIG_CIPHER_ACTIVE_KEY_ID=key-2025   # 新加密用这个
 
 # /etc/app/keys
 key-2025:NEW_BASE64_KEY              # 新 key
@@ -217,21 +217,21 @@ V1 密文仍可读（向后兼容），新加密一律写 V2。
 
 ```bash
 # 加密
-java -cp configenc-core/target/classes \
-  com.guohao.configenc.tool.ConfigEncryptorCli encrypt \
+java -cp config-cipher-core/target/classes \
+  com.guohao.configcipher.tool.ConfigCipherCli encrypt \
   <AES|SM4|RSA|SM2|ECIES> <input> <output> [keyId] [key]
 
 # 解密（算法和 keyId 从文件头自动读出）
-java -cp configenc-core/target/classes \
-  com.guohao.configenc.tool.ConfigEncryptorCli decrypt <input> <output>
+java -cp config-cipher-core/target/classes \
+  com.guohao.configcipher.tool.ConfigCipherCli decrypt <input> <output>
 ```
 
 使用 SM4/SM2/ECIES 需要把 BouncyCastle 加进 classpath：
 
 ```bash
-mvn -q -pl configenc-core dependency:build-classpath -Dmdep.outputFile=target/cp.txt
-CP="configenc-core/target/classes:$(cat configenc-core/target/cp.txt)"
-java -cp "$CP" com.guohao.configenc.tool.ConfigEncryptorCli encrypt SM2 ...
+mvn -q -pl config-cipher-core dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+CP="config-cipher-core/target/classes:$(cat config-cipher-core/target/cp.txt)"
+java -cp "$CP" com.guohao.configcipher.tool.ConfigCipherCli encrypt SM2 ...
 ```
 
 混合算法的 key 参数格式：`pub:BASE64` 或 `priv:BASE64`（分号分隔可同时提供）。
@@ -240,7 +240,7 @@ java -cp "$CP" com.guohao.configenc.tool.ConfigEncryptorCli encrypt SM2 ...
 
 ## 安全边界（这个工具**不做**什么）
 
-- **不管密钥从哪来**：`CONFIG_ENC_*` 环境变量/文件由部署方（K8s Secret / Vault / systemd / CI）负责注入
+- **不管密钥从哪来**：`CONFIG_CIPHER_*` 环境变量/文件由部署方（K8s Secret / Vault / systemd / CI）负责注入
 - **不抗反编译**：jar 可被反编译，但代码里没有任何密钥硬编码，也没有密钥相关的魔法常量
 - **不抗进程内存 dump**：持久化的 `String` key 没做主动清零（JVM GC 前可能滞留）
 - **不做审计日志**：哪次解了哪把 key 目前不记录
@@ -252,11 +252,11 @@ java -cp "$CP" com.guohao.configenc.tool.ConfigEncryptorCli encrypt SM2 ...
 
 ## Spring Boot 集成原理
 
-[`configenc-core`](configenc-core) jar 里注册了 Spring Boot SPI：
+[`config-cipher-core`](config-cipher-core) jar 里注册了 Spring Boot SPI：
 
 ```
 META-INF/spring/org.springframework.boot.env.PropertySourceLoader
-  → com.guohao.configenc.EncryptedConfigPropertySourceLoader
+  → com.guohao.configcipher.EncryptedConfigPropertySourceLoader
 ```
 
 Spring Boot 启动扫 classpath 发现这个 loader，凡是 `.enc` / `.yml.enc` / `.properties.enc` 后缀的资源都交给它处理：读 header → 查 KeyRing → 调对应算法解密 → 把明文字节交回给内置的 YAML/Properties loader 解析。

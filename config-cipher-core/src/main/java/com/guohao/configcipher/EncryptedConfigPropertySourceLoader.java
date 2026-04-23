@@ -1,4 +1,4 @@
-package com.guohao.configenc;
+package com.guohao.configcipher;
 
 import org.springframework.boot.env.PropertiesPropertySourceLoader;
 import org.springframework.boot.env.PropertySourceLoader;
