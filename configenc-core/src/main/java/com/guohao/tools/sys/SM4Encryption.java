@@ -13,9 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Base64;
 
 // SM4-GCM 加密实现
@@ -48,7 +46,7 @@ public class SM4Encryption implements EncryptionAlgorithm {
     @Override
     public void encrypt(java.io.InputStream input, java.io.OutputStream output, String key) throws Exception {
         BouncyCastleSupport.ensureProvider();
-        byte[] keyBytes = normalizeKey(decodeKey(key), KEY_BYTES);
+        byte[] keyBytes = parseKey(key);
         byte[] iv = new byte[IV_LENGTH];
         new SecureRandom().nextBytes(iv);
 
@@ -80,7 +78,7 @@ public class SM4Encryption implements EncryptionAlgorithm {
         byte[] iv = new byte[ivLen];
         dataIn.readFully(iv);
 
-        byte[] keyBytes = normalizeKey(decodeKey(key), KEY_BYTES);
+        byte[] keyBytes = parseKey(key);
         Cipher cipher = Cipher.getInstance(TRANSFORMATION, "BC");
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, ALGORITHM), new GCMParameterSpec(TAG_BITS, iv));
         try (CipherInputStream cipherIn = new CipherInputStream(dataIn, cipher)) {
@@ -93,24 +91,20 @@ public class SM4Encryption implements EncryptionAlgorithm {
         return "SM4-GCM";
     }
 
-    private static byte[] decodeKey(String key) {
+    private static byte[] parseKey(String key) {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("SM4 key is required (Base64)");
         }
-        String trimmed = key.trim();
+        byte[] rawKey;
         try {
-            return Base64.getDecoder().decode(trimmed.getBytes(StandardCharsets.US_ASCII));
+            rawKey = Base64.getDecoder().decode(key.trim().getBytes(StandardCharsets.US_ASCII));
         } catch (IllegalArgumentException ex) {
-            return trimmed.getBytes(StandardCharsets.UTF_8);
+            throw new IllegalArgumentException("SM4 key must be valid Base64 of 16 bytes.", ex);
         }
-    }
-
-    private static byte[] normalizeKey(byte[] rawKey, int targetLen) throws Exception {
-        if (rawKey.length == targetLen) {
-            return rawKey;
+        if (rawKey.length != KEY_BYTES) {
+            throw new IllegalArgumentException(
+                    "SM4 key must decode to " + KEY_BYTES + " bytes, got " + rawKey.length + ".");
         }
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-        byte[] digest = sha256.digest(rawKey);
-        return Arrays.copyOf(digest, targetLen);
+        return rawKey;
     }
 }

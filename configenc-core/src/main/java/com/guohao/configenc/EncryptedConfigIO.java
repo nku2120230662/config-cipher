@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -235,20 +234,19 @@ public final class EncryptedConfigIO {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("AES key is required");
         }
-        String trimmed = key.trim();
         try {
-            return java.util.Base64.getDecoder().decode(trimmed.getBytes(StandardCharsets.US_ASCII));
+            return java.util.Base64.getDecoder().decode(key.trim().getBytes(StandardCharsets.US_ASCII));
         } catch (IllegalArgumentException ex) {
-            return trimmed.getBytes(StandardCharsets.UTF_8);
+            throw new IllegalArgumentException("AES key must be valid Base64.", ex);
         }
     }
 
-    private static byte[] normalizeAesKey(byte[] rawKey) throws GeneralSecurityException {
+    private static byte[] normalizeAesKey(byte[] rawKey) {
         int len = rawKey.length;
-        if (len == 16 || len == 24 || len == 32) {
-            return rawKey;
+        if (len != 16 && len != 24 && len != 32) {
+            throw new IllegalArgumentException(
+                    "AES key must decode to 16, 24, or 32 bytes, got " + len + ".");
         }
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-        return sha256.digest(rawKey);
+        return rawKey;
     }
 }

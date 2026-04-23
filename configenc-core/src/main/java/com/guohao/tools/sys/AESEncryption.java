@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -97,29 +96,23 @@ public class AESEncryption implements EncryptionAlgorithm {
         return Base64.getEncoder().encodeToString(secretKey.getEncoded());
     }
 
-    private static SecretKey parseKey(String key) throws Exception {
+    private static SecretKey parseKey(String key) {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("AES key is required (Base64)");
         }
-        byte[] rawKey = decodeKey(key.trim());
-        byte[] normalized = normalizeKey(rawKey);
-        return new SecretKeySpec(normalized, ALGORITHM);
-    }
-
-    private static byte[] decodeKey(String key) {
+        byte[] rawKey;
         try {
-            return Base64.getDecoder().decode(key.getBytes(StandardCharsets.US_ASCII));
+            rawKey = Base64.getDecoder().decode(key.trim().getBytes(StandardCharsets.US_ASCII));
         } catch (IllegalArgumentException ex) {
-            return key.getBytes(StandardCharsets.UTF_8);
+            throw new IllegalArgumentException(
+                    "AES key must be valid Base64. Generate one with AESEncryption.generateKeyBase64().", ex);
         }
-    }
-
-    private static byte[] normalizeKey(byte[] rawKey) throws Exception {
         int len = rawKey.length;
-        if (len == 16 || len == 24 || len == 32) {
-            return rawKey;
+        if (len != 16 && len != 24 && len != 32) {
+            throw new IllegalArgumentException(
+                    "AES key must decode to 16, 24, or 32 bytes, got " + len
+                    + ". Generate one with AESEncryption.generateKeyBase64().");
         }
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-        return sha256.digest(rawKey);
+        return new SecretKeySpec(rawKey, ALGORITHM);
     }
 }
