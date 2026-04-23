@@ -1,0 +1,7 @@
+﻿2026-02-15T00:37:51.502+08:00  INFO 25804 --- [           main] com.guohao.demo.DemoApplication          : Starting DemoApplication using Java 23.0.1 with PID 25804 (D:\Project\JavaProject\FileEncryption\demo\target\configenc-demo-1.0-SNAPSHOT.jar started by DGH19 in D:\Project\JavaProject\FileEncryption)
+2026-02-15T00:37:51.505+08:00  INFO 25804 --- [           main] com.guohao.demo.DemoApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-02-15T00:37:52.111+08:00  INFO 25804 --- [           main] com.guohao.demo.DemoApplication          : Started DemoApplication in 1.982 seconds (process running for 2.505)
+Loaded from encrypted config:
+app.name=demo-service
+app.port=9090
+
